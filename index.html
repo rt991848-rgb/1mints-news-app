@@ -10,7 +10,7 @@
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #000; color: #fff; }
         .reel-container { width: 100%; height: 100vh; position: relative; overflow: hidden; }
         .reel-video { width: 100%; height: 100%; position: absolute; top: 0; left: 0; background: #000; }
-        video { width: 100%; height: 100%; object-fit: contain; display: block; }
+        iframe { width: 100%; height: 100%; display: block; border: none; }
         .reel-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
         .reel-header { position: absolute; top: 20px; left: 20px; right: 20px; z-index: 10; }
         .app-title { font-size: 1.5rem; font-weight: 700; color: #dc2626; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
@@ -31,18 +31,15 @@
         .loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; text-align: center; }
         .spinner { border: 4px solid rgba(255,255,255,0.2); border-top: 4px solid #dc2626; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .error-msg { background: rgba(220,38,38,0.2); padding: 15px; border-radius: 8px; color: #ff6b6b; text-align: center; margin-top: 10px; }
+        .error-msg { background: rgba(220,38,38,0.2); padding: 15px; border-radius: 8px; color: #ff6b6b; text-align: center; margin-top: 10px; font-size: 0.9rem; }
         @media (max-width: 768px) { .controls { bottom: 60px; right: 10px; gap: 15px; } .control-btn { width: 45px; height: 45px; font-size: 1.2rem; } }
     </style>
 </head>
 <body>
     <div class="reel-container" id="reelContainer">
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>वीडियो लोड हो रहे हैं...</p>
-        </div>
+        <div class="loading" id="loading"></div>
         <div class="reel-video" id="videoPlayer" style="display:none;">
-            <iframe id="video" width="100%" height="100%" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <iframe id="video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
         <div class="reel-overlay"></div>
         <div class="reel-header" id="headerSection" style="display:none;">
@@ -51,7 +48,7 @@
         </div>
         <div class="reel-info" id="infoSection" style="display:none;">
             <div class="video-creator" id="creator">1mints</div>
-            <div class="video-title" id="title">लोड हो रहा है...</div>
+            <div class="video-title" id="title"></div>
             <div class="video-date" id="date"></div>
         </div>
         <div class="controls" id="controlsSection" style="display:none;">
@@ -69,77 +66,31 @@
 
     <script>
         const CHANNEL_ID = 'UCGjEsDsl0dI9-_Oml7rTjOA';
-        const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
-        const YT_RSS_URL = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
-        
-        let videos = [];
-        let currentIndex = 0;
+        const API_KEY = 'AIzaSyDyuWDdcqvbhYEZlKh7fQcVTp9jqPi5QrY';
+        const loading = document.getElementById('loading');
         const likeBtn = document.getElementById('likeBtn');
         const currentIndexEl = document.getElementById('currentIndex');
         const totalVideosEl = document.getElementById('totalVideos');
         const container = document.getElementById('reelContainer');
         const iframe = document.getElementById('video');
-        const loading = document.getElementById('loading');
         const headerSection = document.getElementById('headerSection');
         const infoSection = document.getElementById('infoSection');
         const controlsSection = document.getElementById('controlsSection');
         const playerControls = document.getElementById('playerControls');
         const titleEl = document.getElementById('title');
         const dateEl = document.getElementById('date');
-        const creatorEl = document.getElementById('creator');
+        
+        let videos = [];
+        let currentIndex = 0;
 
-        async function fetchYouTubeVideos() {
-            try {
-                const response = await fetch(CORS_PROXY + encodeURIComponent(YT_RSS_URL));
-                const xmlText = await response.text();
-                const parser = new DOMParser();
-                const xml = parser.parseFromString(xmlText, 'text/xml');
-                
-                const entries = xml.querySelectorAll('entry');
-                videos = Array.from(entries).map(entry => {
-                    const videoIdElement = entry.querySelector('yt\\:videoId');
-                    const titleElement = entry.querySelector('title');
-                    const publishedElement = entry.querySelector('published');
-                    
-                    return {
-                        videoId: videoIdElement?.textContent || '',
-                        title: titleElement?.textContent || 'Untitled',
-                        published: publishedElement?.textContent || new Date().toISOString(),
-                        url: `https://www.youtube.com/embed/${videoIdElement?.textContent}?autoplay=1&mute=1`
-                    };
-                }).filter(v => v.videoId);
-
-                if (videos.length > 0) {
-                    totalVideosEl.textContent = videos.length;
-                    loadVideo(0);
-                    showPlayer();
-                } else {
-                    showError('कोई वीडियो नहीं मिले');
-                }
-            } catch (error) {
-                console.error('Error fetching videos:', error);
-                showError('वीडियो लोड करने में समस्या: ' + error.message);
-            }
+        function showLoading(msg) {
+            loading.innerHTML = `<div class="spinner"></div><p>${msg}</p>`;
+            loading.style.display = 'block';
         }
 
-        function loadVideo(index) {
-            if (videos.length === 0) return;
-            const video = videos[index];
-            titleEl.textContent = video.title;
-            dateEl.textContent = new Date(video.published).toLocaleDateString('hi-IN');
-            creatorEl.textContent = '1mints';
-            currentIndexEl.textContent = index + 1;
-            iframe.src = video.url;
-        }
-
-        function nextVideo() { 
-            currentIndex = (currentIndex + 1) % videos.length; 
-            loadVideo(currentIndex); 
-        }
-
-        function prevVideo() { 
-            currentIndex = (currentIndex - 1 + videos.length) % videos.length; 
-            loadVideo(currentIndex); 
+        function showError(msg) {
+            loading.innerHTML = `<div class="error-msg">${msg}</div>`;
+            loading.style.display = 'block';
         }
 
         function showPlayer() {
@@ -151,8 +102,71 @@
             document.getElementById('videoPlayer').style.display = 'block';
         }
 
-        function showError(msg) {
-            loading.innerHTML = '<div class="error-msg">' + msg + '</div>';
+        async function fetchYouTubeVideos() {
+            showLoading('킓5ीडियो लोड हो रहे हैं...');
+            try {
+                const url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet&order=date&maxResults=50&type=video&videoDuration=short`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error('API error: ' + response.status);
+                }
+                
+                const data = await response.json();
+                
+                if (data.items && data.items.length > 0) {
+                    videos = data.items.map(item => ({
+                        videoId: item.id.videoId,
+                        title: item.snippet.title,
+                        published: item.snippet.publishedAt,
+                        thumbnail: item.snippet.thumbnails.medium.url
+                    }));
+                    
+                    totalVideosEl.textContent = videos.length;
+                    loadVideo(0);
+                    showPlayer();
+                } else {
+                    showError('कोई shorts वीडियो नहीं धूंइ\u0947 गए');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('सूटंलुसुध वीडियो लोड: ' + error.message);
+                
+                // Fallback to demo videos
+                loadDemoVideos();
+            }
+        }
+
+        function loadDemoVideos() {
+            videos = [
+                { videoId: 'dQw4w9WgXcQ', title: 'Demo Video 1', published: new Date().toISOString(), thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg' },
+                { videoId: 'jNQXAC9IVRw', title: 'Demo Video 2', published: new Date().toISOString(), thumbnail: 'https://img.youtube.com/vi/jNQXAC9IVRw/mqdefault.jpg' },
+                { videoId: 'J---aiyznGQ', title: 'Demo Video 3', published: new Date().toISOString(), thumbnail: 'https://img.youtube.com/vi/J---aiyznGQ/mqdefault.jpg' },
+            ];
+            totalVideosEl.textContent = videos.length;
+            loadVideo(0);
+            showPlayer();
+        }
+
+        function loadVideo(index) {
+            if (videos.length === 0) return;
+            const video = videos[index];
+            titleEl.textContent = video.title;
+            dateEl.textContent = new Date(video.published).toLocaleDateString('hi-IN');
+            currentIndexEl.textContent = index + 1;
+            iframe.src = `https://www.youtube.com/embed/${video.videoId}?autoplay=1&mute=1`;
+        }
+
+        function nextVideo() { 
+            if (videos.length === 0) return;
+            currentIndex = (currentIndex + 1) % videos.length; 
+            loadVideo(currentIndex); 
+        }
+
+        function prevVideo() { 
+            if (videos.length === 0) return;
+            currentIndex = (currentIndex - 1 + videos.length) % videos.length; 
+            loadVideo(currentIndex); 
         }
 
         container.addEventListener('wheel', (e) => { e.deltaY > 0 ? nextVideo() : prevVideo(); }, { passive: true });
@@ -164,7 +178,6 @@
 
         likeBtn.addEventListener('click', () => { likeBtn.classList.toggle('liked'); likeBtn.textContent = likeBtn.classList.contains('liked') ? '❤️' : '🤍'; });
 
-        // Fetch videos on load
         fetchYouTubeVideos();
     </script>
 </body>
