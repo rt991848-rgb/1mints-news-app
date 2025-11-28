@@ -14,8 +14,9 @@
         .video-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); line-height: 1.3; }
         .video-creator { font-size: 0.9rem; color: #dc2626; font-weight: 500; text-shadow: 0 1px 4px rgba(0,0,0,0.8); margin-bottom: 4px; }
         .video-date { font-size: 0.85rem; color: #ccc; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
-        .app-header { position: absolute; top: 20px; left: 20px; z-index: 10; }
-        .app-title { font-size: 1.5rem; font-weight: 700; color: #dc2626; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+        .app-header { position: absolute; top: 20px; left: 20px; z-index: 10; display: flex; align-items: center; gap: 12px; }
+        .app-logo { width: 40px; height: 40px; border-radius: 8px; background: linear-gradient(135deg, #dc2626 0%, #ff6b35 100%); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; color: #fff; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3); }
+        .app-title { font-size: 1.4rem; font-weight: 700; color: #dc2626; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
         .video-counter { position: absolute; top: 80px; right: 20px; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 20px; font-size: 0.85rem; z-index: 10; }
         .controls { position: absolute; bottom: 100px; right: 20px; z-index: 10; display: flex; flex-direction: column; gap: 20px; }
         .control-btn { width: 50px; height: 50px; border: none; border-radius: 50%; background: rgba(255,255,255,0.2); color: #fff; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; backdrop-filter: blur(10px); }
@@ -33,7 +34,8 @@
         <iframe id="video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         
         <div class="app-header">
-            <div class="app-title">킄1mints</div>
+            <div class="app-logo">1</div>
+            <div class="app-title">Mints</div>
         </div>
         
         <div class="video-counter">
