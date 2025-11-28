@@ -15,8 +15,7 @@
         .video-creator { font-size: 0.9rem; color: #dc2626; font-weight: 500; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
         .video-date { font-size: 0.85rem; color: #ccc; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
         .app-header { position: absolute; top: 20px; left: 20px; z-index: 10; display: flex; align-items: center; gap: 12px; }
-        .app-logo { width: 70px; height: 70px; border-radius: 10px; background: linear-gradient(135deg, #dc2626 0%, #ff6b35 100%); display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: bold; color: white; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4); }
-        .app-title { font-size: 1.4rem; font-weight: 700; color: #dc2626; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
+        .app-logo { display: flex; align-items: center; justify-content: center; }        .app-title { font-size: 1.4rem; font-weight: 700; color: #dc2626; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
         .video-counter { position: absolute; top: 80px; right: 20px; z-index: 10; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 20px; font-size: 0.9rem; }
         .controls { position: absolute; bottom: 100px; right: 20px; z-index: 10; display: flex; flex-direction: column; gap: 15px; }
         .control-btn { width: 50px; height: 50px; border: none; border-radius: 50%; background: rgba(255,255,255,0.3); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; transition: background 0.3s; }
@@ -30,8 +29,7 @@
 <body>
     <div class="reel-container">
         <div class="app-header">
-            <div class="app-logo">1</div>
-            <div class="app-title">Mints</div>
+<svg class="app-logo" viewBox="0 0 100 100" width="70" height="70" style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);"><defs><linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#dc2626;stop-opacity:1" /><stop offset="100%" style="stop-color:#ea580c;stop-opacity:1" /></linearGradient></defs><rect width="100" height="100" fill="url(#logoGrad)" /><text x="50" y="70" font-size="70" font-weight="bold" fill="#f5f5f5" text-anchor="middle" font-family="Arial, sans-serif" letter-spacing="-2">1</text></svg>            <div class="app-title">Mints</div>
         </div>
         
         <iframe id="videoPlayer" src="https://www.youtube.com/embed/jNQXAC9IVRw?autoplay=1&mute=1" allowfullscreen></iframe>
