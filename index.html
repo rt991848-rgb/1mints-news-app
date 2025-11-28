@@ -3,60 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>킄1mints - 60 Second News</title>
+    <title>킄1mints</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); color: #fff; min-height: 100vh; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 40px; padding: 20px 0; border-bottom: 2px solid #dc2626; }
-        .header h1 { font-size: 2.5rem; margin-bottom: 5px; color: #dc2626; font-weight: 700; }
-        .header p { font-size: 1.1rem; color: #999; font-weight: 300; }
-        .videos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
-        .video-card { background: #1e1e1e; border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.3s; border: 1px solid #333; }
-        .video-card:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(220, 38, 38, 0.3); }
-        .video-thumbnail { position: relative; width: 100%; padding-bottom: 56.25%; overflow: hidden; background: #000; }
-        .video-thumbnail img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-        .video-badge { position: absolute; top: 10px; right: 10px; background: #dc2626; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
-        .video-info { padding: 16px; }
-        .video-title { font-size: 1rem; font-weight: 600; margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .video-channel { font-size: 0.85rem; color: #dc2626; margin-bottom: 8px; font-weight: 500; }
-        .video-time { font-size: 0.8rem; color: #999; }
-        @media (max-width: 768px) { .header h1 { font-size: 1.8rem; } .videos-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; } }
+        html, body { width: 100%; height: 100%; overflow: hidden; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #000; color: #fff; }
+        .reel-container { width: 100%; height: 100vh; position: relative; overflow: hidden; }
+        .reel-video { width: 100%; height: 100%; position: absolute; top: 0; left: 0; background: #000; }
+        video { width: 100%; height: 100%; object-fit: contain; display: block; }
+        .reel-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
+        .reel-header { position: absolute; top: 20px; left: 20px; right: 20px; z-index: 10; }
+        .app-title { font-size: 1.5rem; font-weight: 700; color: #dc2626; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+        .reel-info { position: absolute; bottom: 80px; left: 20px; right: 100px; z-index: 10; color: #fff; }
+        .video-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .video-creator { font-size: 0.9rem; color: #dc2626; font-weight: 500; text-shadow: 0 1px 4px rgba(0,0,0,0.8); margin-bottom: 4px; }
+        .video-duration { font-size: 0.85rem; color: #ccc; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
+        .controls { position: absolute; bottom: 100px; right: 20px; z-index: 10; display: flex; flex-direction: column; gap: 20px; }
+        .control-btn { width: 50px; height: 50px; border: none; border-radius: 50%; background: rgba(255,255,255,0.2); color: #fff; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; backdrop-filter: blur(10px); }
+        .control-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.1); }
+        .control-btn.liked { background: #dc2626; }
+        .progress-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: #dc2626; z-index: 10; }
+        .player-controls { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; z-index: 10; }
+        .play-btn { width: 50px; height: 50px; border: none; border-radius: 50%; background: #dc2626; color: #fff; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .play-btn:hover { background: #b91c1c; }
+        .mute-btn { width: 40px; height: 40px; border: none; border-radius: 50%; background: rgba(255,255,255,0.3); color: #fff; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .video-counter { position: absolute; top: 80px; right: 20px; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 20px; font-size: 0.85rem; z-index: 10; }
+        @media (max-width: 768px) { .controls { bottom: 60px; right: 10px; gap: 15px; } .control-btn { width: 45px; height: 45px; font-size: 1.2rem; } }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>킄1mints</h1>
-            <p>킂4-60 सेकंड में समाचार</p>
+    <div class="reel-container" id="reelContainer">
+        <div class="reel-video" id="videoPlayer">
+            <video id="video" playsinline muted autoplay></video>
         </div>
-        <div class="videos-grid" id="videosGrid"></div>
+        <div class="reel-overlay"></div>
+        <div class="reel-header">
+            <div class="app-title">킄1mints</div>
+            <div class="video-counter"><span id="currentIndex">1</span> / <span id="totalVideos">6</span></div>
+        </div>
+        <div class="reel-info">
+            <div class="video-creator" id="creator">1mints</div>
+            <div class="video-title" id="title">Video Title</div>
+            <div class="video-duration" id="duration">60 seconds</div>
+        </div>
+        <div class="controls">
+            <button class="control-btn" id="likeBtn" title="Like">❤️</button>
+            <button class="control-btn" title="Share">🔗</button>
+            <button class="control-btn" title="Comment">💬</button>
+            <button class="control-btn" title="More">⋯</button>
+        </div>
+        <div class="player-controls">
+            <button class="mute-btn" id="muteBtn" title="Mute/Unmute">🔊</button>
+            <button class="play-btn" id="playBtn" title="Play/Pause">⏸</button>
+        </div>
+        <div class="progress-bar" id="progressBar"></div>
     </div>
+
     <script>
         const videos = [
-            { videoId: 'dQw4w9WgXcQ', title: '킄1mints सेकमें खुलिमती अपडेट', thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg', time: '2 कणशु पहले' },
-            { videoId: 'jNQXAC9IVRw', title: 'धिन: बाल संरक्षण विधेयक', thumbnail: 'https://img.youtube.com/vi/jNQXAC9IVRw/mqdefault.jpg', time: '15 कणशु पहले' },
-            { videoId: 'J---aiyznGQ', title: 'बष्ू: महत्वपूर्ण घशणा', thumbnail: 'https://img.youtube.com/vi/J---aiyznGQ/mqdefault.jpg', time: '45 कणशु पहले' },
-            { videoId: '0VjIjW4it88', title: 'बगती: नई संसद अब तेंदुलकर', thumbnail: 'https://img.youtube.com/vi/0VjIjW4it88/mqdefault.jpg', time: '2 घंटे पहले' },
-            { videoId: 'OPf0YbXqDm0', title: 'इतवास: सुदूर विश्लेषण सौसंपत', thumbnail: 'https://img.youtube.com/vi/OPf0YbXqDm0/mqdefault.jpg', time: '5 घंटे पहले' },
-            { videoId: '1f0p1yzfJTA', title: 'रखली: रेकोल दरतॉंक संसद', thumbnail: 'https://img.youtube.com/vi/1f0p1yzfJTA/mqdefault.jpg', time: '1 दिन पहले' }
+            { title: '킄1mints सीग 1', creator: '1mints', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1', duration: '60 sec' },
+            { title: '킄1mints सीग 2', creator: '1mints', url: 'https://www.youtube.com/embed/jNQXAC9IVRw?autoplay=1&mute=1', duration: '45 sec' },
+            { title: '킄1mints सीग 3', creator: '1mints', url: 'https://www.youtube.com/embed/J---aiyznGQ?autoplay=1&mute=1', duration: '60 sec' },
+            { title: '킄1mints सीग 4', creator: '1mints', url: 'https://www.youtube.com/embed/0VjIjW4it88?autoplay=1&mute=1', duration: '50 sec' },
+            { title: '킄1mints सीग 5', creator: '1mints', url: 'https://www.youtube.com/embed/OPf0YbXqDm0?autoplay=1&mute=1', duration: '60 sec' },
+            { title: '킄1mints सीग 6', creator: '1mints', url: 'https://www.youtube.com/embed/1f0p1yzfJTA?autoplay=1&mute=1', duration: '55 sec' }
         ];
-        function render() {
-            document.getElementById('videosGrid').innerHTML = videos.map(v => `
-                <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=${v.videoId}')">
-                    <div class="video-thumbnail">
-                        <img src="${v.thumbnail}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCBmaWxsPSIjMjIyIiB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIvPjwvc3ZnPg=='">
-                        <div class="video-badge">60 सेक</div>
-                    </div>
-                    <div class="video-info">
-                        <div class="video-title">${v.title}</div>
-                        <div class="video-channel">1mints</div>
-                        <div class="video-time">${v.time}</div>
-                    </div>
-                </div>
-            `).join('');
+
+        let currentIndex = 0;
+        const videoEl = document.getElementById('video');
+        const titleEl = document.getElementById('title');
+        const creatorEl = document.getElementById('creator');
+        const durationEl = document.getElementById('duration');
+        const progressBar = document.getElementById('progressBar');
+        const playBtn = document.getElementById('playBtn');
+        const muteBtn = document.getElementById('muteBtn');
+        const likeBtn = document.getElementById('likeBtn');
+        const currentIndexEl = document.getElementById('currentIndex');
+        const totalVideosEl = document.getElementById('totalVideos');
+        const container = document.getElementById('reelContainer');
+
+        totalVideosEl.textContent = videos.length;
+
+        function loadVideo(index) {
+            const video = videos[index];
+            titleEl.textContent = video.title;
+            creatorEl.textContent = video.creator;
+            durationEl.textContent = video.duration;
+            currentIndexEl.textContent = index + 1;
+            videoEl.src = '';
+            updateProgressBar();
         }
-        document.addEventListener('DOMContentLoaded', render);
+
+        function updateProgressBar() {
+            if (videoEl.duration) {
+                const progress = (videoEl.currentTime / videoEl.duration) * 100;
+                progressBar.style.width = progress + '%';
+            }
+        }
+
+        function nextVideo() { currentIndex = (currentIndex + 1) % videos.length; loadVideo(currentIndex); videoEl.play(); }
+        function prevVideo() { currentIndex = (currentIndex - 1 + videos.length) % videos.length; loadVideo(currentIndex); videoEl.play(); }
+
+        container.addEventListener('wheel', (e) => { e.deltaY > 0 ? nextVideo() : prevVideo(); }, { passive: true });
+        container.addEventListener('touchstart', (e) => { touchStart = e.touches[0].clientY; }, { passive: true });
+        container.addEventListener('touchend', (e) => {
+            const touchEnd = e.changedTouches[0].clientY;
+            touchStart - touchEnd > 50 ? nextVideo() : touchStart - touchEnd < -50 && prevVideo();
+        }, { passive: true });
+
+        playBtn.addEventListener('click', () => { videoEl.paused ? videoEl.play() : videoEl.pause(); });
+        muteBtn.addEventListener('click', () => { videoEl.muted = !videoEl.muted; muteBtn.textContent = videoEl.muted ? '🔇' : '🔊'; });
+        likeBtn.addEventListener('click', () => { likeBtn.classList.toggle('liked'); likeBtn.textContent = likeBtn.classList.contains('liked') ? '❤' : '🤍'; });
+        videoEl.addEventListener('timeupdate', updateProgressBar);
+        videoEl.addEventListener('ended', nextVideo);
+
+        // Demo - create sample video blobs from YouTube URLs
+        const sampleVideoUrls = [
+            'https://commondatastorage.googleapis.com/gtv-videos-library/sample/BigBuckBunny.mp4',
+            'https://commondatastorage.googleapis.com/gtv-videos-library/sample/ElephantsDream.mp4',
+            'https://commondatastorage.googleapis.com/gtv-videos-library/sample/ForBiggerBlazes.mp4',
+            'https://commondatastorage.googleapis.com/gtv-videos-library/sample/ForBiggerEscapes.mp4',
+            'https://commondatastorage.googleapis.com/gtv-videos-library/sample/ForBiggerFun.mp4',
+            'https://commondatastorage.googleapis.com/gtv-videos-library/sample/ForBiggerJoyrides.mp4'
+        ];
+        
+        videos.forEach((v, i) => { v.url = sampleVideoUrls[i]; });
+        loadVideo(0);
+        videoEl.src = videos[0].url;
+        videoEl.play();
     </script>
 </body>
 </html>
