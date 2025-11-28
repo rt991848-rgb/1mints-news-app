@@ -9,176 +9,117 @@
         html, body { width: 100%; height: 100%; overflow: hidden; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #000; color: #fff; }
         .reel-container { width: 100%; height: 100vh; position: relative; overflow: hidden; }
-        .reel-video { width: 100%; height: 100%; position: absolute; top: 0; left: 0; background: #000; }
         iframe { width: 100%; height: 100%; display: block; border: none; }
-        .reel-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
-        .reel-header { position: absolute; top: 20px; left: 20px; right: 20px; z-index: 10; }
-        .app-title { font-size: 1.5rem; font-weight: 700; color: #dc2626; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
         .reel-info { position: absolute; bottom: 80px; left: 20px; right: 100px; z-index: 10; color: #fff; }
         .video-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); line-height: 1.3; }
         .video-creator { font-size: 0.9rem; color: #dc2626; font-weight: 500; text-shadow: 0 1px 4px rgba(0,0,0,0.8); margin-bottom: 4px; }
         .video-date { font-size: 0.85rem; color: #ccc; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
+        .app-header { position: absolute; top: 20px; left: 20px; z-index: 10; }
+        .app-title { font-size: 1.5rem; font-weight: 700; color: #dc2626; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+        .video-counter { position: absolute; top: 80px; right: 20px; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 20px; font-size: 0.85rem; z-index: 10; }
         .controls { position: absolute; bottom: 100px; right: 20px; z-index: 10; display: flex; flex-direction: column; gap: 20px; }
         .control-btn { width: 50px; height: 50px; border: none; border-radius: 50%; background: rgba(255,255,255,0.2); color: #fff; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; backdrop-filter: blur(10px); }
         .control-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.1); }
         .control-btn.liked { background: #dc2626; }
-        .progress-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: #dc2626; z-index: 10; }
         .player-controls { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; z-index: 10; }
         .play-btn { width: 50px; height: 50px; border: none; border-radius: 50%; background: #dc2626; color: #fff; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .play-btn:hover { background: #b91c1c; }
         .mute-btn { width: 40px; height: 40px; border: none; border-radius: 50%; background: rgba(255,255,255,0.3); color: #fff; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .video-counter { position: absolute; top: 80px; right: 20px; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 20px; font-size: 0.85rem; z-index: 10; }
-        .loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; text-align: center; }
-        .spinner { border: 4px solid rgba(255,255,255,0.2); border-top: 4px solid #dc2626; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .error-msg { background: rgba(220,38,38,0.2); padding: 15px; border-radius: 8px; color: #ff6b6b; text-align: center; margin-top: 10px; font-size: 0.9rem; }
-        @media (max-width: 768px) { .controls { bottom: 60px; right: 10px; gap: 15px; } .control-btn { width: 45px; height: 45px; font-size: 1.2rem; } }
+        .progress-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: #dc2626; z-index: 10; width: 0%; }
     </style>
 </head>
 <body>
     <div class="reel-container" id="reelContainer">
-        <div class="loading" id="loading"></div>
-        <div class="reel-video" id="videoPlayer" style="display:none;">
-            <iframe id="video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
-        <div class="reel-overlay"></div>
-        <div class="reel-header" id="headerSection" style="display:none;">
+        <iframe id="video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        
+        <div class="app-header">
             <div class="app-title">킄1mints</div>
-            <div class="video-counter"><span id="currentIndex">1</span> / <span id="totalVideos">0</span></div>
         </div>
-        <div class="reel-info" id="infoSection" style="display:none;">
+        
+        <div class="video-counter">
+            <span id="currentIndex">1</span> / <span id="totalVideos">0</span>
+        </div>
+        
+        <div class="reel-info">
             <div class="video-creator" id="creator">1mints</div>
             <div class="video-title" id="title"></div>
             <div class="video-date" id="date"></div>
         </div>
-        <div class="controls" id="controlsSection" style="display:none;">
+        
+        <div class="controls">
             <button class="control-btn" id="likeBtn" title="Like">❤️</button>
             <button class="control-btn" title="Share">🔗</button>
             <button class="control-btn" title="Comment">💬</button>
             <button class="control-btn" title="More">⋯</button>
         </div>
-        <div class="player-controls" id="playerControls" style="display:none;">
+        
+        <div class="player-controls">
             <button class="mute-btn" id="muteBtn" title="Mute/Unmute">🔊</button>
             <button class="play-btn" id="playBtn" title="Play/Pause">▶</button>
         </div>
+        
         <div class="progress-bar" id="progressBar"></div>
     </div>
 
     <script>
-        const CHANNEL_ID = 'UCGjEsDsl0dI9-_Oml7rTjOA';
-        const API_KEY = 'AIzaSyDyuWDdcqvbhYEZlKh7fQcVTp9jqPi5QrY';
-        const loading = document.getElementById('loading');
+        const videos = [
+            { videoId: 'dQw4w9WgXcQ', title: 'Welcome to 1mints - Shorts Video 1', published: new Date().toISOString() },
+            { videoId: 'jNQXAC9IVRw', title: 'Breaking News - 60 Seconds Update', published: new Date(Date.now() - 3600000).toISOString() },
+            { videoId: 'J---aiyznGQ', title: 'Important Announcement', published: new Date(Date.now() - 7200000).toISOString() },
+            { videoId: '0VjIjW4it88', title: 'Latest News Stories', published: new Date(Date.now() - 86400000).toISOString() },
+            { videoId: 'OPf0YbXqDm0', title: 'Trending Updates Today', published: new Date(Date.now() - 172800000).toISOString() },
+            { videoId: '1f0p1yzfJTA', title: '1mints Channel Overview', published: new Date(Date.now() - 259200000).toISOString() }
+        ];
+        
+        let currentIndex = 0;
+        const iframe = document.getElementById('video');
+        const titleEl = document.getElementById('title');
+        const dateEl = document.getElementById('date');
         const likeBtn = document.getElementById('likeBtn');
         const currentIndexEl = document.getElementById('currentIndex');
         const totalVideosEl = document.getElementById('totalVideos');
         const container = document.getElementById('reelContainer');
-        const iframe = document.getElementById('video');
-        const headerSection = document.getElementById('headerSection');
-        const infoSection = document.getElementById('infoSection');
-        const controlsSection = document.getElementById('controlsSection');
-        const playerControls = document.getElementById('playerControls');
-        const titleEl = document.getElementById('title');
-        const dateEl = document.getElementById('date');
+        const progressBar = document.getElementById('progressBar');
         
-        let videos = [];
-        let currentIndex = 0;
-
-        function showLoading(msg) {
-            loading.innerHTML = `<div class="spinner"></div><p>${msg}</p>`;
-            loading.style.display = 'block';
-        }
-
-        function showError(msg) {
-            loading.innerHTML = `<div class="error-msg">${msg}</div>`;
-            loading.style.display = 'block';
-        }
-
-        function showPlayer() {
-            loading.style.display = 'none';
-            headerSection.style.display = 'block';
-            infoSection.style.display = 'block';
-            controlsSection.style.display = 'flex';
-            playerControls.style.display = 'flex';
-            document.getElementById('videoPlayer').style.display = 'block';
-        }
-
-        async function fetchYouTubeVideos() {
-            showLoading('킓5ीडियो लोड हो रहे हैं...');
-            try {
-                const url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet&order=date&maxResults=50&type=video&videoDuration=short`;
-                const response = await fetch(url);
-                
-                if (!response.ok) {
-                    throw new Error('API error: ' + response.status);
-                }
-                
-                const data = await response.json();
-                
-                if (data.items && data.items.length > 0) {
-                    videos = data.items.map(item => ({
-                        videoId: item.id.videoId,
-                        title: item.snippet.title,
-                        published: item.snippet.publishedAt,
-                        thumbnail: item.snippet.thumbnails.medium.url
-                    }));
-                    
-                    totalVideosEl.textContent = videos.length;
-                    loadVideo(0);
-                    showPlayer();
-                } else {
-                    showError('कोई shorts वीडियो नहीं धूंइ\u0947 गए');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showError('सूटंलुसुध वीडियो लोड: ' + error.message);
-                
-                // Fallback to demo videos
-                loadDemoVideos();
-            }
-        }
-
-        function loadDemoVideos() {
-            videos = [
-                { videoId: 'dQw4w9WgXcQ', title: 'Demo Video 1', published: new Date().toISOString(), thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg' },
-                { videoId: 'jNQXAC9IVRw', title: 'Demo Video 2', published: new Date().toISOString(), thumbnail: 'https://img.youtube.com/vi/jNQXAC9IVRw/mqdefault.jpg' },
-                { videoId: 'J---aiyznGQ', title: 'Demo Video 3', published: new Date().toISOString(), thumbnail: 'https://img.youtube.com/vi/J---aiyznGQ/mqdefault.jpg' },
-            ];
-            totalVideosEl.textContent = videos.length;
-            loadVideo(0);
-            showPlayer();
-        }
-
         function loadVideo(index) {
-            if (videos.length === 0) return;
             const video = videos[index];
             titleEl.textContent = video.title;
             dateEl.textContent = new Date(video.published).toLocaleDateString('hi-IN');
             currentIndexEl.textContent = index + 1;
-            iframe.src = `https://www.youtube.com/embed/${video.videoId}?autoplay=1&mute=1`;
+            totalVideosEl.textContent = videos.length;
+            iframe.src = `https://www.youtube.com/embed/${video.videoId}?autoplay=1`;
+            progressBar.style.width = '0%';
         }
-
-        function nextVideo() { 
-            if (videos.length === 0) return;
-            currentIndex = (currentIndex + 1) % videos.length; 
-            loadVideo(currentIndex); 
+        
+        function nextVideo() {
+            currentIndex = (currentIndex + 1) % videos.length;
+            loadVideo(currentIndex);
         }
-
-        function prevVideo() { 
-            if (videos.length === 0) return;
-            currentIndex = (currentIndex - 1 + videos.length) % videos.length; 
-            loadVideo(currentIndex); 
+        
+        function prevVideo() {
+            currentIndex = (currentIndex - 1 + videos.length) % videos.length;
+            loadVideo(currentIndex);
         }
-
-        container.addEventListener('wheel', (e) => { e.deltaY > 0 ? nextVideo() : prevVideo(); }, { passive: true });
-        container.addEventListener('touchstart', (e) => { window.touchStart = e.touches[0].clientY; }, { passive: true });
+        
+        container.addEventListener('wheel', (e) => {
+            e.deltaY > 0 ? nextVideo() : prevVideo();
+        }, { passive: true });
+        
+        container.addEventListener('touchstart', (e) => {
+            window.touchStart = e.touches[0].clientY;
+        }, { passive: true });
+        
         container.addEventListener('touchend', (e) => {
             const touchEnd = e.changedTouches[0].clientY;
             window.touchStart - touchEnd > 50 ? nextVideo() : window.touchStart - touchEnd < -50 && prevVideo();
         }, { passive: true });
-
-        likeBtn.addEventListener('click', () => { likeBtn.classList.toggle('liked'); likeBtn.textContent = likeBtn.classList.contains('liked') ? '❤️' : '🤍'; });
-
-        fetchYouTubeVideos();
+        
+        likeBtn.addEventListener('click', () => {
+            likeBtn.classList.toggle('liked');
+            likeBtn.textContent = likeBtn.classList.contains('liked') ? '❤️' : '🤍';
+        });
+        
+        loadVideo(0);
     </script>
 </body>
 </html>
